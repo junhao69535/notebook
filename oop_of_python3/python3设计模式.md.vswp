@@ -23,6 +23,8 @@ vnote_backup_file_826537664 D:/notebook/oop_of_python3/python3设计模式.md
 ### UML表现形式：
 ![观察者模式UML](images/20191210141746855_4427.png =659x)
 
+![image](https://github.com/junhao69535/notebook/blob/master/oop_of_python3/images/20191210141746855_4427.png)
+
 如图，核心对象必须实现attack()方法，用于给自身添加观察者，也需要实现update()方法，用于通知其他观察者。而观察者对象必须实现观察者接口，实现__call__()方法，用于收到核心对象信息时调用处理。
 
 ### 核心：
@@ -37,7 +39,9 @@ vnote_backup_file_826537664 D:/notebook/oop_of_python3/python3设计模式.md
 
 ### UML表现形式：
 ![策略模式UML](images/20191210141939086_15591.png =596x)
-    
+
+![image](https://github.com/junhao69535/notebook/blob/master/oop_of_python3/images/20191210141939086_15591.png)
+
 如图，User和Abstraction之间关联，而Implementation1和2实现了Abstraction接口。User对象不关心他们怎么实现。User对象只需要根据情况调用对应的实现类即可。如user1对象需要使用策略1（implementation1），那么其在调用的时候传参只需要把implementation1参进去即可。而user2需要使用策略2（implementation），那么其在调用的时候传参只需要把implementation2参进去即可。
 
 连接到策略模式的用户代码仅仅需要知道和它打交道的抽象接口。对同一任务的实现可能会选择完全不同的方法，但是无论采用哪种方法，接口都是完全相同。实际上这和多态没有区别。
@@ -51,7 +55,9 @@ vnote_backup_file_826537664 D:/notebook/oop_of_python3/python3设计模式.md
 
 ### UML表现形式
 ![状态模式UML](images/20191210142034064_15026.png =605x)
-    
+
+![image](https://github.com/junhao69535/notebook/blob/master/oop_of_python3/images/20191210142034064_15026.png)
+
 如图，有两个类型的类，一个上下文类和多个状态类。上下文类维护当前状态，并且转发操作到状态类。状态类对其他调用上下文的对象（如User）而言通常是隐藏的。
 
 ### 状态和策略模式的对比
@@ -63,7 +69,9 @@ vnote_backup_file_826537664 D:/notebook/oop_of_python3/python3设计模式.md
 
 ### UML表现形式
 ![模板模式UML](images/20191210142142566_13860.png =524x)
-    
+
+![image](https://github.com/junhao69535/notebook/blob/master/oop_of_python3/images/20191210142142566_13860.png)
+
 如图，Task1继承基类然后重写自己不同的步骤。这些接口向外提供do_process接口，对外界来说内部实现是隐藏的。
 
 
@@ -73,6 +81,8 @@ vnote_backup_file_826537664 D:/notebook/oop_of_python3/python3设计模式.md
 ### UML表现形式：
 ![适配器UML](images/20191210142218934_5283.png =550x)
 
+![image](https://github.com/junhao69535/notebook/blob/master/oop_of_python3/images/20191210142218934_5283.png)
+
 如图，facede对象使Complex Component和Another Component可以一起工作，例如Complex Component是其他模块提供的接口，我们不能修改，而这个接口的参数格式和我们需要提供的Another Component有区别，这时就需要facede适配器对象进行协调。我们提供的Another Component接口接收参数，然后通过facede适配器对象转换成适用Complex Component接口的参数。
 
 
@@ -81,7 +91,10 @@ vnote_backup_file_826537664 D:/notebook/oop_of_python3/python3设计模式.md
 
 ### UML表现形式：
 ![外观模式UML](images/20191210142300863_30288.png =550x)
-    外观模式和适配器模式的区别：外观模式试图从一个复杂的系统抽象出一个简单的接口；而适配器只不过是想将一个现有的接口匹配到另一个。假设我们有一个邮件应用程序，内部处理逻辑非常复杂，这时我们可以抽象出一个简单接口提供给外界，处理好所有底层。外界使用这个抽象出的接口便很容易使用这个邮件应用程序，同时如果外界想访问底层，以前的底层接口也是提供的，因此既可访问抽象出的接口，也能访问底层接口，按需所取。
+
+![image](https://github.com/junhao69535/notebook/blob/master/oop_of_python3/images/20191210142300863_30288.png)
+
+外观模式和适配器模式的区别：外观模式试图从一个复杂的系统抽象出一个简单的接口；而适配器只不过是想将一个现有的接口匹配到另一个。假设我们有一个邮件应用程序，内部处理逻辑非常复杂，这时我们可以抽象出一个简单接口提供给外界，处理好所有底层。外界使用这个抽象出的接口便很容易使用这个邮件应用程序，同时如果外界想访问底层，以前的底层接口也是提供的，因此既可访问抽象出的接口，也能访问底层接口，按需所取。
 
 
 ## 享元模式
@@ -89,8 +102,11 @@ vnote_backup_file_826537664 D:/notebook/oop_of_python3/python3设计模式.md
 
 ### UML表现形式
 ![享元模式UML](images/20191210143529477_23167.png =550x)
+
+![image](https://github.com/junhao69535/notebook/blob/master/oop_of_python3/images/20191210143529477_23167.png)
+
 每个享元都没有指定状态；在任何需要对特定状态执行操作的时候，该状态就需要被代码调用，传递到该享元处。一般来说，享元返回的工厂是一个单独的对象；它是为一个能够识别享元的给定关键词而返回的。和单例模式的区别是，单例模式只返回唯一实例，而享元是根据关键词返回不同的实例。在许多语言中，工厂不是作为一个单独的对象，而是作为Flyweight类本身的静态方法来执行。但在python中，享元工厂经常使用__new__构造，类似单例模式。
-    
+
 ### 代码
 ```
 #!coding=utf-8
@@ -158,5 +174,3 @@ print(id(lx))
 print(lx.air)
 ```
 显然，采用享元模式会使代码更加复杂。享元模式是转为节省内存而设计的；如果我们有数十或成百上千相似的对象，将它们的相同特性整合进一个享元中可以极大地减少对内存的消耗。
-
-
