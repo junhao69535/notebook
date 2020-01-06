@@ -1,0 +1,11 @@
+vnote_backup_file_826537664 D:/notebook/c_program/链接.md
+# 链接
+
+## 不同平台下链接文件后缀名
+### windows
+windows平台下，静态链接文件后缀名为.lib，动态链接后缀名为.dll，但存在后缀名为.lib的文件，.lib 文件包含DLL导出的函数和变量的符号名，只是用来为链接程序提供必要的信息，以便在链接时找到函数或变量的入口地址；.dll 文件才包含实际的函数和数据。所以在windows下，.lib文件不一定是静态链接文件。
+
+### linux
+linux平台下，静态链接文件后缀名为.a，动态链接后缀名为.so
+
+详情：https://blog.csdn.net/u013407012/article/details/80042815
