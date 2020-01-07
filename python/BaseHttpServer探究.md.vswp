@@ -8,7 +8,8 @@ python3：
 这个模块不再提供，提供了server模块，具体内容基本一样，位于/Lib/http下
 
 ## 源码
-```
+
+```python
 """HTTP server base class.
 
 Note: the class in this module doesn't implement any HTTP request; see
@@ -16,7 +17,7 @@ SimpleHTTPServer for simple implementations of GET, HEAD and POST
 (including CGI scripts).  It does, however, optionally implement HTTP/1.1
 persistent connections, as of version 0.3.
 # 这个模块并不实现任何HTTP请求，实际上就是一个TCPServer。
-# 提供了一个BaseHTTPRequestHandler处理HTTP请求，但这个基本并没有实现任何HTTP请求方法处理。
+# 提供了一个BaseHTTPRequestHandler处理HTTP请求，但这个基本并没有实现任何HTTP请求方法处理。具体的实现在SimpleHTTPRequestHandler模块提供。
 # 可选实现HTTp/1.1长连接
 Contents:
 
@@ -645,7 +646,7 @@ if __name__ == '__main__':
 ## 测试
 BaseHTTPRequestHandler没有提供任何的HTTP方法实现，因此如果需要实现相应的HTTP请求方法处理，需要继承BaseHTTPRequestHandler，增加do_GET()，处理GET请求，或do_POST()，处理POST请求，其他请求方法类似。
 
-```
+```python
 #!coding=utf-8
 import BaseHTTPServer
 import json

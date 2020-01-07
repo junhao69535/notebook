@@ -2,7 +2,7 @@
 
 socket模块是扩展c写的_socket模块，提供额外的设备python实现
 
-```
+```python
 # Wrapper module for _socket, providing some additional facilities
 # implemented in Python.
 

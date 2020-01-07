@@ -2,7 +2,7 @@ vnote_backup_file_826537664 D:/notebook/python/cgi模块探究.md
 # cgi模块探究
 
 
-```
+```python
 #! /usr/local/bin/python
 
 # NOTE: the above "/usr/local/bin/python" is NOT a mistake.  It is
@@ -186,6 +186,8 @@ def parse(fp=None, environ=os.environ, keep_blank_values=0, strict_parsing=0):
 
 def parse_qs(qs, keep_blank_values=0, strict_parsing=0):
     """Parse a query given as a string argument."""
+    # 这个函数和parse_sql作用一样，返回的是一个多值字典,{name: [value1, value2]}
+    # 如"name=test1&name=test2"被解析为{name: [test1, test2]}
     warn("cgi.parse_qs is deprecated, use urlparse.parse_qs instead",
          PendingDeprecationWarning, 2)
     return urlparse.parse_qs(qs, keep_blank_values, strict_parsing)
@@ -193,6 +195,8 @@ def parse_qs(qs, keep_blank_values=0, strict_parsing=0):
 
 def parse_qsl(qs, keep_blank_values=0, strict_parsing=0, max_num_fields=None):
     """Parse a query given as a string argument."""
+    # 这个函数和parse_sq作用一样，返回的是一个列表，元素为(name, value)元组。
+    # 如"name=test1&name=test2"被解析为[(name, value1), (name, value2)]
     warn("cgi.parse_qsl is deprecated, use urlparse.parse_qsl instead",
          PendingDeprecationWarning, 2)
     return urlparse.parse_qsl(qs, keep_blank_values, strict_parsing,

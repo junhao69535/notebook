@@ -1,6 +1,6 @@
 # python2线程池实现思路
 
-```
+```python
 #!coding=utf-8
 # Copyright (c) 2005 Allan Saddi <allan@saddi.com>
 # All rights reserved.

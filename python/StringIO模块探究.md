@@ -4,7 +4,7 @@ StringIO一般用作缓存，提供和文件对象相同的接口，但只在内
 
 ## 源码
 
-```
+```python
 r"""File-like objects that read from or write to a string buffer.
 
 This implements (nearly) all stdio methods.
@@ -347,7 +347,7 @@ if __name__ == '__main__':
 
 ## 测试
 
-```
+```python
 #!coding=utf-8
 import StringIO
 
