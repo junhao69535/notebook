@@ -1,6 +1,6 @@
 # SocketServer探究
 
-```
+```python
 """Generic socket server classes.
 
 This module tries to capture the various aspects of defining a server:

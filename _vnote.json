@@ -29,17 +29,16 @@
             "name": "pgsql"
         },
         {
-<<<<<<< HEAD
             "name": "python"
         },
         {
             "name": "python3"
-=======
+        },
+        {
             "name": "algorithm"
         },
         {
             "name": "c_and_pointers"
->>>>>>> 1efda60a0b87f68dad3cd4f8b9e111177fb4e572
         }
     ],
     "tags": [

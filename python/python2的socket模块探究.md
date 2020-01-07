@@ -1,6 +1,6 @@
 # python2的socket模块探究
 
-```
+```python
 # Wrapper module for _socket, providing some additional facilities
 # implemented in Python.
 
