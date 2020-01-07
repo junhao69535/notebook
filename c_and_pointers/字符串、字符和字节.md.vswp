@@ -61,3 +61,122 @@ printf("%c\n", buf[11]);  /* 结果为'e' */
 #### 字符串比较
 `int strncmp(char const *s1, char const *s2, size_t len);`
 最多比较len个字符。
+
+
+## 字符串查找基础
+
+### 查找一个字符
+`char *strchr(char const *str, int ch);`
+在字符串str中查找字符ch第1此出现的位置，找到后函数返回一个指向该位置的指针，如果该字符不存在字符串中，返回一个NULL指针。
+
+`char *strrchr(char const *str, int ch);`
+和strchr一样，只不过反方向查找，找到ch在最后边出现的第1的位置。
+
+### 查找任何几个字符
+`char *strpbrk(char const *str, char const *group);`
+在str字符串中查找group字符串任一字符第一次出现的位置。
+
+### 查找一个子串
+`char *strstr(char const *s1, char const *s2);`
+在s1中查找整个s2第1次出现的起始位置，并返回一个指向该位置的指针。
+
+标准库中不存在反向查找任何几个字符或查找一个字串的函数。可以自行实现。
+
+```c
+/*
+** 在字符串s1中反向查找子串s2，并返回一个指向该位置的指针。
+*/
+#include<string.h>
+
+char *strrstr(char const *s1, char const *s2)
+{
+    register char *last;
+    register char *current;
+
+    if (*s2 != '\0')
+    {
+        current = strstr(s1, s2);
+        while(current !=NULL)
+        {
+            last = current;
+            current = strstr(last + 1, s2);  /* 一直找到最后匹配的子串 */
+        }
+    }
+    return last;
+}
+```
+
+
+## 高级字符串查找
+
+### 查找一个字符串前缀
+`size_t strspn(char const *str, char const *group);`
+strspn返回str起始部分匹配group中任意字符的字符数。**注意是起始部分，一旦遇到不匹配的，立刻返回**
+
+`size_t strcspn(char const *str, char const *group);`
+和strspn相反，返回str中起始部分不与group中任何字符匹配的字符数。**注意是起始部分，一旦遇到匹配的，立刻返回**
+
+### 查找标记
+`char *strtok(char *str, char const *sep);`
+str包含了零个或多个由sep字符串中一个或多个分隔符分隔的标记。strtok找到str的下一个标记，并将其用NUL结尾，然后返回一个指向被分隔的左边字符串指针。
+
+**strtok函数会修改所处理的字符串str。如果源字符串不能修改，先复制一份传递给strtok函数。**
+
+
+## 字符操作
+标准库包含了两组函数，用于操作单独的字符，它们的原型位于头文件ctype.h。第一组函数用于对字符分类，第二组函数用于转换字符。
+
+### 字符分类
+每个分类函数接受一个包含字符值的整型参数。函数测试这个字符并返回一个整型值，表示真或假。
+
+字符分类函数
+
+|   函数   |                   如果它的参数符合下列条件就返回真                   |
+| -------- | ----------------------------------------------------------------- |
+| iscntrl  | 任何控制字符                                                       |
+| isspace  | 空白字符：空格'';换页'\f';换行'\n';回车'\r';制表符'\t';垂直制表符'\v' |
+| isdigit  | 十进制数字0~9                                                      |
+| isxdigit | 十六进制数字                                                       |
+| islower  | 小写字母a~z                                                        |
+| isupper  | 大写字母A~Z                                                        |
+| isalpha  | 字母a~z或A~Z                                                       |
+| isalnum  | 字母或数字                                                         |
+| ispunct  | 标点符号，任何不属于数字或字母的图形字符（可打印符号）                 |
+| isgraph  | 任何图形字符                                                       |
+| isprint  | 任何可打印字符，包括图形字符和空白字符                                |
+
+### 字符转换
+`int tolower(int ch);`
+如果ch是大写，返回小写字符，否则返回原来字符。
+
+`int toupper(int ch);`
+如果ch是小写，返回大写字符，否则返回原来字符。
+
+
+## 内存操作
+根据定义，字符串由一个NUL字节结尾，所以字符串内部不能包含任何NUL字符。但是非字符串数据内部包含零值的情况很普遍，无法使用字符串函数来处理，因为中途会遇到NUL字节。
+
+但是可以使用内存操作函数，能够处理任意的字节序列。
+
+`void *memcpy(void *dst, void const *src, size_t length);`
+从src的起始位置复制length个字节到dst的内存起始位置。区别于字符串函数，这个函数能复制任何类型的数据。**如果src和dst出现重叠，结果是未定义的。**
+
+```c
+int dst[3];
+int src[5] = {1, 2, 3, 4, 5};
+...
+memcpy(dst, src, 3 * sizeof(src[0]));  /* 把src数组的三个元素复制到dst数组 */
+memcpy(dst, src, sizeof(dst)); /* 作用和上面一样 */
+```
+
+`void *memmove(void *dst, void const *src, size_t lenth);`
+memmove函数和memcpy函数效果差不多，只不过它的源和目标操作数可以重叠。
+
+`void *memcmp(void const *a, void const *b, size_t length);`
+对两段内存的内容进行比较。这些值按照无符号字符逐字节比较，函数的返回类型和strcmp函数一样——负值表示a小于b，零表示a等于b，正值表示a大于b。**由于这些值是根据一串无符号字节进行比较的，所以如果memcmp函数用于比较不是单字节的数据如整型和浮点型就可能给出不可预料的结果。**
+
+`void *memchr(void const *a, int ch, size_t length);`
+从a的起始位置开始查找字符ch第1次出现的问题，并返回一个指向该位置的指针，共查找length个字节。如果找不到，返回NULL指针。
+
+`void *memset(void *a, int ch, size_t length);`
+从a开始的length字节都设置为字符值ch。主要用于初始化，特别是malloc分配的堆内存。
