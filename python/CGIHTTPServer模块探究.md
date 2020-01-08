@@ -90,9 +90,10 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         (and the next character is a '/' or the end of the string).
         """
         collapsed_path = _url_collapse_path(self.path)
-        dir_sep = collapsed_path.find('/', 1)
+        dir_sep = collapsed_path.find('/', 1)  # 找到目录分隔符
         head, tail = collapsed_path[:dir_sep], collapsed_path[dir_sep+1:]
         if head in self.cgi_directories:
+            # 即相对路径是/cgi-bin或/./cgi-bin这样类型
             self.cgi_info = head, tail
             return True
         return False
@@ -122,6 +123,7 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 dir, rest = nextdir, nextrest
                 i = path.find('/', len(dir)+1)
             else:
+                # 一直找，直到该路径是个文件而不是文件夹
                 break
 
         # find an explicit query string, if present.
@@ -149,6 +151,7 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             if not (self.have_fork or self.have_popen2 or self.have_popen3):
                 self.send_error(403, "CGI script is not a Python script (%r)" %
                                 scriptname)
+                # 如果不是python文件，又不支持多进程，则return
                 return
             if not self.is_executable(scriptfile):
                 self.send_error(403, "CGI script is not executable (%r)" %
@@ -221,6 +224,7 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             env.setdefault(k, "")
 
         self.send_response(200, "Script output follows")
+        # 由于这里先发送响应行了，因此该模块不支持定制响应行，只能发送200状态码的响应行
 
         decoded_query = query.replace('+', ' ')
 
@@ -248,7 +252,7 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     os.setuid(nobody)
                 except os.error:
                     pass
-                os.dup2(self.rfile.fileno(), 0)
+                os.dup2(self.rfile.fileno(), 0)  # 把标准输入重定向到rfile
                 os.dup2(self.wfile.fileno(), 1)
                 os.execve(scriptfile, args, env)
             except:
@@ -304,8 +308,10 @@ def _url_collapse_path(path):
     """
     Given a URL path, remove extra '/'s and '.' path elements and collapse
     any '..' references and returns a colllapsed path.
+    # 移除url多余的'/'和'.'并折叠任何'..'引用，返回一个折叠路径
 
     Implements something akin to RFC-2396 5.2 step 6 to parse relative paths.
+    # 用于解析相对路径
     The utility of this function is limited to is_cgi method and helps
     preventing some security attacks.
 
@@ -316,7 +322,7 @@ def _url_collapse_path(path):
     """
     # Query component should not be involved.
     path, _, query = path.partition('?')
-    path = urllib.unquote(path)
+    path = urllib.unquote(path)  # 把url编码格式转换为字符串格式
 
     # Similar to os.path.split(os.path.normpath(path)) but specific to URL
     # path semantics rather than local operating system semantics.
@@ -324,11 +330,12 @@ def _url_collapse_path(path):
     head_parts = []
     for part in path_parts[:-1]:
         if part == '..':
+            '..'之后不能只有一个'/'，否则抛出IndexError，即'..'后面必须有内层路径
             head_parts.pop() # IndexError if more '..' than prior parts
         elif part and part != '.':
             head_parts.append( part )
     if path_parts:
-        tail_part = path_parts.pop()
+        tail_part = path_parts.pop()  # 取出最后一个'/'右边的尾部路径
         if tail_part:
             if tail_part == '..':
                 head_parts.pop()
