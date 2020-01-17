@@ -21,10 +21,16 @@ class Response(
     """
 ```
 
+响应对象有以下规则：
+* 响应对象是可变对象。
+* 在调用freeze()之后，响应对象能被序列化和copy。
+* 将同一个响应对象作用于多个WSGI响应对象是安全的。
+* 响应对象支持深拷贝（deepcopy）。
+
 可以看出，这个类是通过继承其他类类实现功能的。基本功能由BaseResponse类提供（意味着如果不需要这些混入类的功能，Reponse类和BaseResponse类功能一样），其他功能由Mixin类提供。从继承的类可以看出，我们也可以通过继承新的Mixin类来增加功能。默认下继承了4个Mixin类。
 * ETagResponseMixin提供了etag和cache处理功能。
 * ResponseStreamMixin提供了流处理功能。
-* CommonResponseDescriptorsMixin提供了各种HTTP描述器。
+* CommonResponseDescriptorsMixin提供了各种HTTP响应头字段描述器。
 * WWWAuthenticateMixin提供了HTTP认证支持。
 
 ## BaseResponse源码分析
@@ -1065,6 +1071,7 @@ class ETagResponseMixin(object):
     def add_etag(self, overwrite=False, weak=False):
         """Add an etag for the current response if there is none yet."""
         if overwrite or "etag" not in self.headers:
+            # generate_etag利用md5对响应体生成etag
             self.set_etag(generate_etag(self.get_data()), weak)
 
     def set_etag(self, etag, weak=False):
@@ -1134,8 +1141,51 @@ class ETagResponseMixin(object):
 
 ```
 
+### 测试
+etag的请求流程，浏览器发送请求，服务端查看请求头有没有If-None-Match字段，如果没有，则生成一个tag，然后作为响应头Etag:etag返回。浏览器会把这个资源和etag缓存下来，当浏览器下一次发送请求时会把这个etag放在If-None-Match请求头部字段。服务端收到If-None-Match请求头部字段，判断是否和之前生成的一样，如果是，返回空响应体，状态码为304。浏览器收到304就知道可以使用本地缓存。
+
+```python
+#!coding=utf-8
+import hashlib
+from werkzeug.wrappers import Response
+from werkzeug.serving import run_simple
+
+
+def app(environ, start_response):
+    print environ
+    if environ.get("PATH_INFO") == "/":
+        response = Response('<html>'
+                            '<a href="http://localhost:5000/test">bin</a>'
+                            '<script type="text/javascript" src="http://localhost:5000/temp_js.js"></script>'
+                            '</html>',
+                            headers={"Content-type": "text/html"})
+    elif environ.get("PATH_INFO") == "/temp_js.js":
+        etag = environ.get("HTTP_IF_NONE_MATCH")  # werkzeug会把If-None-Match改写成HTTP_IF_NONE_MATCH
+        if etag:
+            etag = etag.replace('"', '')  # 而且这里貌似有个bug，从If-None-Match得到的etag多包了一层双引号""。
+        with open("temp_js.js", "rb") as f:
+            data = f.read()
+        if etag == hashlib.md5(data).hexdigest():
+            print u"进入缓存"
+            response = Response()
+            response.status_code = 304
+        else:
+            print u"没有进入缓存"
+            response = Response(mimetype="application/javascript")
+            with open("temp_js.js", "rb") as f:
+                response.stream.write(f.read())
+            response.add_etag()
+    else:
+        response = Response()
+    return response(environ, start_response)
+
+
+if __name__ == "__main__":
+    run_simple("localhost", 5000, app, threaded=True)
+```
+
 ### 总结
-这个Mixin类提供了Etag和cache的功能。
+这个Mixin类提供了Etag和cache的功能，在Etag方面提供了add_etag和get_etag接口。在cache方面提供了cache_control接口。
 
 
 ## ResponseStreamMixin源码分析
@@ -1500,4 +1550,29 @@ class WWWAuthenticateMixin(object):
 这个属性实际上是WWWAuthenticate的对象，因此操作的接口都是WWWAuthenticate提供的接口。这个类只提供设置响应头的www-authenticate字段，不提供验证。
 
 说一下这个验证，就明白原理了：
-具体定义可以参考RFC 2617中，首先浏览器请求，然后服务端判断请求头是否有`AUTHORIZATION`字段，如果没有，响应头应该添加`WWW-Authenticate`字段，格式为`WWW-Authenticate: Basic realm=“.”`，并把状态码设置为401，返回给浏览器，浏览器会根据这个响应要求用户输入账号和密码，返回把账号和密码的信息请求头`Authorization`字段，格式为`Authorization: Basic YWRtaW46YWRtaW4=`。其中`YWRtaW46YWRtaW4=`是经过base64编码的账号和密码。对应原始的账号密码是admin:admin。
+具体定义可以参考RFC 2617中，首先浏览器请求，然后服务端判断请求头是否有`AUTHORIZATION`字段，如果没有，响应头应该添加`WWW-Authenticate`字段，格式为`WWW-Authenticate: Basic realm=“.”`，并把状态码设置为401，返回给浏览器，浏览器会根据这个响应要求用户输入账号和密码，返回把账号和密码的信息请求头`Authorization`字段，格式为`Authorization: Basic YWRtaW46YWRtaW4=`。其中`YWRtaW46YWRtaW4=`是经过base64编码的账号和密码。对应原始的账号密码是admin:admin。服务端通过base64解码并验证登录信息是否正确。
+
+**但是这种方式验证基本不用，因为不安全。**
+
+### 测试
+
+```python
+def app(environ, start_response):
+    # 验证
+    auth = environ.get("HTTP_AUTHORIZATION", None)  # 注意：werkzeug把AUTHORIZATION字段改成了HTTP_AUTHORIZATION
+    if not auth:
+        response = Response("No auth!", status=401)  # 状态码必须设置为401
+        response.www_authenticate.set_basic()  # 响应头设置WWW-Authenticate字段
+    else:
+        # 此处进行base64解码
+        import base64
+        auth = auth.split(" ")[1]  # 去掉"Basic"
+        data = base64.decodestring(auth).split(":")  # 分隔账号和密码
+        user = data[0]
+        password = data[1]
+        if user == "admin" and password == "123456":
+            response = Response("Welcome!" + str(user))
+        else:
+            response = Response("user or password is incorrect!")
+    return response(environ, start_response)
+```
