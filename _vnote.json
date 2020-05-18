@@ -42,6 +42,21 @@
         },
         {
             "name": "werkzeug"
+        },
+        {
+            "name": "wechat_develop"
+        },
+        {
+            "name": "apue"
+        },
+        {
+            "name": "link_load_library"
+        },
+        {
+            "name": "network"
+        },
+        {
+            "name": "redis"
         }
     ],
     "tags": [
