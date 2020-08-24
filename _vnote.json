@@ -57,6 +57,9 @@
         },
         {
             "name": "redis"
+        },
+        {
+            "name": "computer_system"
         }
     ],
     "tags": [
