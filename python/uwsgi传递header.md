@@ -1,0 +1,3 @@
+# uwsgi传递header
+
+当nginx和uwsgi server之间不走http协议，那么proxy_set_header指令就无效。如果走的是uwsgi协议，那么可以通过uwsgi_param指令设置header，只需要在header名字前加上HTTP_即可。如需要传递NAME="hello"则指令为`uwsgi_param HTTP_NAME hello;`，那么后端就能在header获取NAME:hello。
